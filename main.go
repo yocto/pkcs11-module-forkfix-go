@@ -1,5 +1,6 @@
 package main
 
+// #include <dlfcn.h>
 // #include "cgo.h"
 import "C"
 import "fmt"
