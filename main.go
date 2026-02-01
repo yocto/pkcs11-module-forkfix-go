@@ -54,19 +54,19 @@ func getDynamicLibrarySymbol(functionName string) any {
 	return C.dlsym(lh, C.CString(functionName))
 }
 
-func registerDynamicLibrarySymbolPure(function any, functionName string) any {
+func registerDynamicLibrarySymbolPure(fptr any, functionName string) any {
 	lh := getDynamicLibraryPure()
 	if lh == 0 {
 		return nil
 	}
-	purego.RegisterLibFunc(&function, lh, functionName)
-	return function
+	purego.RegisterLibFunc(fptr, lh, functionName)
+	return fptr
 }
 
 //export C_CancelFunction
 func C_CancelFunction(hSession C.CK_SESSION_HANDLE) C.CK_RV { // Since v1.0
 	var function func(C.CK_SESSION_HANDLE) C.CK_RV
-	functionRV := registerDynamicLibrarySymbolPure(function, "C_CancelFunction")
+	functionRV := registerDynamicLibrarySymbolPure(&function, "C_CancelFunction")
 	if functionRV == nil {
 		fmt.Println("Failed getting symbol for this function.")
 		return C.CKR_FUNCTION_NOT_SUPPORTED
