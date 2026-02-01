@@ -21,7 +21,7 @@ func getDynamicLibrary() unsafe.Pointer {
 		if libraryHandle != nil {
 			C.dlclose(libraryHandle)
 		}
-		libraryHandle = C.dlopen(C.CString(os.Getenv("PKCS11_SUBMODULE")), C.RTLD_LAZY)
+		libraryHandle = C.dlmopen(C.LM_ID_NEWLM, C.CString(os.Getenv("PKCS11_SUBMODULE")), C.RTLD_LAZY)
 		if libraryHandle == nil {
 			return nil
 		}
@@ -44,12 +44,12 @@ func getDynamicLibraryPure() uintptr {
 	return libraryHandlePure
 }
 
-func getDynamicLibrarySymbol(functionName string) any {
+func getDynamicLibrarySymbol(functionName string) uintptr {
 	lh := getDynamicLibrary()
 	if lh == nil {
 		return nil
 	}
-	return C.dlsym(lh, C.CString(functionName))
+	return uintptr(C.dlsym(lh, C.CString(functionName)))
 }
 
 func registerDynamicLibrarySymbolPure(fptr any, functionName string) any {
@@ -63,12 +63,13 @@ func registerDynamicLibrarySymbolPure(fptr any, functionName string) any {
 
 //export C_CancelFunction
 func C_CancelFunction(hSession C.CK_SESSION_HANDLE) C.CK_RV { // Since v1.0
-	var function func(C.CK_SESSION_HANDLE) C.CK_RV
-	functionRV := registerDynamicLibrarySymbolPure(&function, "C_CancelFunction")
-	if functionRV == nil {
+	symbol := getDynamicLibrarySymbol("C_CancelFunction")
+	if symbol == nil {
 		fmt.Println("Failed getting symbol for this function.")
 		return C.CKR_FUNCTION_NOT_SUPPORTED
 	}
+	var function func(C.CK_SESSION_HANDLE) C.CK_RV
+	purego.RegisterFunc(function, symbol)
 	return function(hSession)
 }
 
