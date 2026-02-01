@@ -26,6 +26,7 @@ func getDynamicLibrary() unsafe.Pointer {
 			return nil
 		}
 		libraryPID = os.Getpid()
+		return libraryHandle
 	}
 	return nil
 }
@@ -40,6 +41,7 @@ func getDynamicLibraryPure() uintptr {
 			return 0
 		}
 		libraryPIDPure = os.Getpid()
+		return libraryHandlePure
 	}
 	return 0
 }
@@ -64,7 +66,7 @@ func registerDynamicLibrarySymbolPure(function any, functionName string) any {
 //export C_CancelFunction
 func C_CancelFunction(hSession C.CK_SESSION_HANDLE) C.CK_RV { // Since v1.0
 	var function func(C.CK_SESSION_HANDLE) C.CK_RV
-	functionRV := registerDynamicLibrarySymbolPure(function,"C_CancelFunction")
+	functionRV := registerDynamicLibrarySymbolPure(function, "C_CancelFunction")
 	if functionRV == nil {
 		fmt.Println("Failed getting symbol for this function.")
 		return C.CKR_FUNCTION_NOT_SUPPORTED
