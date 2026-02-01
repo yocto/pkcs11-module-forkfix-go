@@ -21,7 +21,7 @@ func getDynamicLibrary() unsafe.Pointer {
 		if libraryHandle != nil {
 			C.dlclose(libraryHandle)
 		}
-		libraryHandle = C.dlopen(C.CString(os.Getenv("PKCS11_SUBMODULE")), C.RTLD_LAZY|C.RTLD_GLOBAL)
+		libraryHandle = C.dlopen(C.CString(os.Getenv("PKCS11_SUBMODULE")), C.RTLD_LAZY)
 		if libraryHandle == nil {
 			return nil
 		}
@@ -35,7 +35,7 @@ func getDynamicLibraryPure() uintptr {
 		if libraryHandlePure != 0 {
 			purego.Dlclose(libraryHandlePure)
 		}
-		libraryHandlePure, _ = purego.Dlopen(os.Getenv("PKCS11_SUBMODULE"), purego.RTLD_NOW|purego.RTLD_GLOBAL)
+		libraryHandlePure, _ = purego.Dlopen(os.Getenv("PKCS11_SUBMODULE"), purego.RTLD_LAZY)
 		if libraryHandlePure == 0 {
 			return 0
 		}
