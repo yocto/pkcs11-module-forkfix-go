@@ -30,7 +30,7 @@ func getDynamicLibrary() unsafe.Pointer {
 	return nil
 }
 
-func getDynamicLibraryPure() {
+func getDynamicLibraryPure() uintptr {
 	if libraryHandlePure == 0 || libraryPIDPure == -1 || libraryPIDPure != os.Getpid() {
 		if libraryHandlePure != 0 {
 			purego.Dlclose(libraryHandlePure)
