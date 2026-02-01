@@ -9,7 +9,7 @@ import "unsafe"
 
 func main() {}
 
-var libraryHandle any = nil
+var libraryHandle unsafe.Pointer = nil
 var libraryPID int = -1
 
 func getDynamicLibrarySymbol(functionName string) any {
