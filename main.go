@@ -3,12 +3,30 @@ package main
 // #include "cgo.h"
 import "C"
 import "fmt"
+import "os"
 import "unsafe"
 
 func main() {}
 
+var libraryHandle any = nil
+var libraryPID int = -1
+
 func getDynamicLibrarySymbol(functionName string) any {
-	return nil
+	if libraryHandle == nil || libraryPID == -1 || libraryPID != os.Getpid() {
+		if libraryHandle != nil {
+			C.dlclose(libraryHandle)
+		}
+		libraryHandle := C.dlopen(C.CString(os.Getenv("PKCS11_SUBMODULE")), C.RTLD_LAZY|C.RTLD_GLOBAL)
+		if libraryHandle == nil {
+			return nil
+		}
+		libraryPID = os.Getpid()
+	}
+	if libraryHandle == nil {
+		return nil
+	}
+
+	return C.dlsym(libraryHandle, C.CString(functionName))
 }
 
 //export C_CancelFunction
