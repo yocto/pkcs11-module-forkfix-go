@@ -7,12 +7,16 @@ import "fmt"
 import "os"
 import "unsafe"
 
+import "github.com/ebitengine/purego"
+
 func main() {}
 
 var libraryHandle unsafe.Pointer = nil
+var libraryHandlePure uintptr = nil
 var libraryPID int = -1
+var libraryPIDPure int = -1
 
-func getDynamicLibrarySymbol(functionName string) any {
+func getDynamicLibrary() unsafe.Pointer {
 	if libraryHandle == nil || libraryPID == -1 || libraryPID != os.Getpid() {
 		if libraryHandle != nil {
 			C.dlclose(libraryHandle)
@@ -23,24 +27,48 @@ func getDynamicLibrarySymbol(functionName string) any {
 		}
 		libraryPID = os.Getpid()
 	}
-	if libraryHandle == nil {
+	return nil
+}
+
+func getDynamicLibraryPure() {
+	if libraryHandlePure == nil || libraryPIDPure == -1 || libraryPIDPure != os.Getpid() {
+		if libraryHandlePure != nil {
+			purego.Dlclose(libraryHandlePure)
+		}
+		libraryHandlePure, _ = purego.Dlopen(os.Getenv("PKCS11_SUBMODULE"), purego.RTLD_NOW|purego.RTLD_GLOBAL)
+		if libraryHandlePure == nil {
+			return nil
+		}
+		libraryPIDPure = os.Getpid()
+	}
+	return nil
+}
+
+func getDynamicLibrarySymbol(functionName string) any {
+	lh := getDynamicLibrary()
+	if lh == nil {
 		return nil
 	}
+	return C.dlsym(lh, C.CString(functionName))
+}
 
-	return C.dlsym(libraryHandle, C.CString(functionName))
+func registerDynamicLibrarySymbolPure(function any, functionName string) any {
+	lh := getDynamicLibraryPure()
+	if lh == nil {
+		return nil
+	}
+	purego.RegisterLibFunc(&function, lh, functionName)
+	return function
 }
 
 //export C_CancelFunction
 func C_CancelFunction(hSession C.CK_SESSION_HANDLE) C.CK_RV { // Since v1.0
-	symbol := getDynamicLibrarySymbol("C_CancelFunction")
-	if symbol == nil {
+	var function func(C.CK_SESSION_HANDLE) C.CK_RV
+	function = registerDynamicLibrarySymbolPure("C_CancelFunction")
+	if function == nil {
 		fmt.Println("Failed getting symbol for this function.")
 		return C.CKR_FUNCTION_NOT_SUPPORTED
 	}
-
-	type functionType func(C.CK_SESSION_HANDLE) C.CK_RV
-	function := *(*functionType)(unsafe.Pointer(&symbol))
-
 	return function(hSession)
 }
 
