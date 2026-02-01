@@ -3,35 +3,68 @@ package main
 // #include "cgo.h"
 import "C"
 import "fmt"
+import "unsafe"
 
 func main() {}
 
+func getDynamicLibrarySymbol(functionName string) any {
+	return nil
+}
+
 //export C_CancelFunction
 func C_CancelFunction(hSession C.CK_SESSION_HANDLE) C.CK_RV { // Since v1.0
-	fmt.Printf("Function called: C_CancelFunction(hSession=%+v)\n", hSession)
-	// TODO
-	return C.CKR_FUNCTION_NOT_SUPPORTED
+	symbol := getDynamicLibrarySymbol("C_CancelFunction")
+	if symbol == nil {
+		fmt.Println("Failed getting symbol for this function.")
+		return C.CKR_FUNCTION_NOT_SUPPORTED
+	}
+
+	type functionType func(C.CK_SESSION_HANDLE) C.CK_RV
+	function := *(*functionType)(unsafe.Pointer(&symbol))
+
+	return function(hSession)
 }
 
 //export C_CloseAllSessions
 func C_CloseAllSessions(slotID C.CK_SLOT_ID) C.CK_RV { // Since v1.0
-	fmt.Printf("Function called: C_CloseAllSessions(slotID=%+v)\n", slotID)
-	// TODO
-	return C.CKR_FUNCTION_NOT_SUPPORTED
+	symbol := getDynamicLibrarySymbol("C_CloseAllSessions")
+	if symbol == nil {
+		fmt.Println("Failed getting symbol for this function.")
+		return C.CKR_FUNCTION_NOT_SUPPORTED
+	}
+
+	type functionType func(C.CK_SLOT_ID) C.CK_RV
+	function := *(*functionType)(unsafe.Pointer(&symbol))
+
+	return function(slotID)
 }
 
 //export C_CloseSession
 func C_CloseSession(hSession C.CK_SESSION_HANDLE) C.CK_RV { // Since v1.0
-	fmt.Printf("Function called: C_CloseSession(hSession=%+v)\n", hSession)
-	// TODO
-	return C.CKR_FUNCTION_NOT_SUPPORTED
+	symbol := getDynamicLibrarySymbol("C_CloseAllSessions")
+	if symbol == nil {
+		fmt.Println("Failed getting symbol for this function.")
+		return C.CKR_FUNCTION_NOT_SUPPORTED
+	}
+
+	type functionType func(C.CK_SESSION_HANDLE) C.CK_RV
+	function := *(*functionType)(unsafe.Pointer(&symbol))
+
+	return function(hSession)
 }
 
 //export C_CopyObject
 func C_CopyObject(hSession C.CK_SESSION_HANDLE, hObject C.CK_OBJECT_HANDLE, pTemplate C.CK_ATTRIBUTE_PTR, ulCount C.CK_ULONG /*usCount C.CK_USHORT (v1.0)*/, phNewObject C.CK_OBJECT_HANDLE_PTR) C.CK_RV { // Since v1.0
-	fmt.Printf("Function called: C_CopyObject(hSession=%+v, hObject=%+v, pTemplate=%+v, ulCount=%+v, phNewObject=%+v)\n", hSession, hObject, pTemplate, ulCount, phNewObject)
-	// TODO
-	return C.CKR_FUNCTION_NOT_SUPPORTED
+	symbol := getDynamicLibrarySymbol("C_CopyObject")
+	if symbol == nil {
+		fmt.Println("Failed getting symbol for this function.")
+		return C.CKR_FUNCTION_NOT_SUPPORTED
+	}
+
+	type functionType func(C.CK_SESSION_HANDLE, C.CK_OBJECT_HANDLE, C.CK_ATTRIBUTE_PTR, C.CK_ULONG, C.CK_OBJECT_HANDLE_PTR) C.CK_RV
+	function := *(*functionType)(unsafe.Pointer(&symbol))
+
+	return function(hSession, hObject, pTemplate, ulCount, phNewObject)
 }
 
 //export C_CreateObject
@@ -269,14 +302,7 @@ func C_GetAttributeValue(hSession C.CK_SESSION_HANDLE, hObject C.CK_OBJECT_HANDL
 func C_GetFunctionList(ppFunctionList C.CK_FUNCTION_LIST_PTR_PTR) C.CK_RV { // Since v2.0
 	fmt.Printf("Function called: C_GetFunctionList(ppFunctionList=%+v)\n", ppFunctionList)
 
-	if ppFunctionList == nil {
-		fmt.Println("Function list pointer cannot be null.")
-		return C.CKR_ARGUMENTS_BAD
-	}
-
-	*ppFunctionList = &functionList
-
-	return C.CKR_OK
+	return C.CKR_FUNCTION_NOT_SUPPORTED
 }
 
 //export C_GetFunctionStatus
