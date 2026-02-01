@@ -12,7 +12,7 @@ import "github.com/ebitengine/purego"
 func main() {}
 
 var libraryHandle unsafe.Pointer = nil
-var libraryHandlePure uintptr = nil
+var libraryHandlePure uintptr = 0
 var libraryPID int = -1
 var libraryPIDPure int = -1
 
@@ -31,17 +31,17 @@ func getDynamicLibrary() unsafe.Pointer {
 }
 
 func getDynamicLibraryPure() {
-	if libraryHandlePure == nil || libraryPIDPure == -1 || libraryPIDPure != os.Getpid() {
-		if libraryHandlePure != nil {
+	if libraryHandlePure == 0 || libraryPIDPure == -1 || libraryPIDPure != os.Getpid() {
+		if libraryHandlePure != 0 {
 			purego.Dlclose(libraryHandlePure)
 		}
 		libraryHandlePure, _ = purego.Dlopen(os.Getenv("PKCS11_SUBMODULE"), purego.RTLD_NOW|purego.RTLD_GLOBAL)
-		if libraryHandlePure == nil {
-			return nil
+		if libraryHandlePure == 0 {
+			return 0
 		}
 		libraryPIDPure = os.Getpid()
 	}
-	return nil
+	return 0
 }
 
 func getDynamicLibrarySymbol(functionName string) any {
@@ -54,7 +54,7 @@ func getDynamicLibrarySymbol(functionName string) any {
 
 func registerDynamicLibrarySymbolPure(function any, functionName string) any {
 	lh := getDynamicLibraryPure()
-	if lh == nil {
+	if lh == 0 {
 		return nil
 	}
 	purego.RegisterLibFunc(&function, lh, functionName)
@@ -64,8 +64,8 @@ func registerDynamicLibrarySymbolPure(function any, functionName string) any {
 //export C_CancelFunction
 func C_CancelFunction(hSession C.CK_SESSION_HANDLE) C.CK_RV { // Since v1.0
 	var function func(C.CK_SESSION_HANDLE) C.CK_RV
-	function = registerDynamicLibrarySymbolPure("C_CancelFunction")
-	if function == nil {
+	functionRV := registerDynamicLibrarySymbolPure(function,"C_CancelFunction")
+	if functionRV == nil {
 		fmt.Println("Failed getting symbol for this function.")
 		return C.CKR_FUNCTION_NOT_SUPPORTED
 	}
