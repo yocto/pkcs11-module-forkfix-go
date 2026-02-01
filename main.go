@@ -17,7 +17,7 @@ func getDynamicLibrarySymbol(functionName string) any {
 		if libraryHandle != nil {
 			C.dlclose(libraryHandle)
 		}
-		libraryHandle := C.dlopen(C.CString(os.Getenv("PKCS11_SUBMODULE")), C.RTLD_LAZY|C.RTLD_GLOBAL)
+		libraryHandle = C.dlopen(C.CString(os.Getenv("PKCS11_SUBMODULE")), C.RTLD_LAZY|C.RTLD_GLOBAL)
 		if libraryHandle == nil {
 			return nil
 		}
