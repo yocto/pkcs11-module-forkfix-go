@@ -11,6 +11,11 @@ import "unsafe"
 
 import "github.com/ebitengine/purego"
 
+var cryptokiVersion = C.CK_VERSION{
+	major: 3,
+	minor: 1,
+}
+
 var interfaces = []C.CK_INTERFACE{
 	C.CK_INTERFACE{
 		pInterfaceName: (*C.CK_CHAR)(unsafe.SliceData([]byte("PKCS 11"))),
