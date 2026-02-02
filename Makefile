@@ -7,6 +7,7 @@ build:
 
 install:
 	cp bin/pkcs11-forkfix /usr/lib/pkcs11/pkcs11-forkfix.so
+	mkdir -p /usr/lib/pkcs11/
 	chmod +x /usr/lib/pkcs11/pkcs11-forkfix.so
 
 clean:
