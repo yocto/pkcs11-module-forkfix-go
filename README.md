@@ -13,8 +13,7 @@ Fork, clone or download this repository and use it as base for your own PKCS#11 
 To build this module, you just run:
 
 ```shell
-./download_headers.sh
-go build --buildmode=c-shared -o bin/
+make build
 ```
 
 Note: Because of Cgo, `gcc` is expected to be installed.
