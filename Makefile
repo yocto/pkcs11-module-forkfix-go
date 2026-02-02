@@ -6,8 +6,8 @@ build:
 	go build --buildmode=c-shared -o bin/
 
 install:
-	cp bin/pkcs11-forkfix /usr/lib/pkcs11/pkcs11-forkfix.so
 	mkdir -p /usr/lib/pkcs11/
+	cp bin/pkcs11-forkfix /usr/lib/pkcs11/pkcs11-forkfix.so
 	chmod +x /usr/lib/pkcs11/pkcs11-forkfix.so
 
 clean:
