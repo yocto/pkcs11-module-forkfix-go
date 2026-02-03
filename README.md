@@ -17,3 +17,7 @@ make build
 ```
 
 Note: Because of Cgo, `gcc` is expected to be installed.
+
+## Environment variables
+
+- `PKCS11_SUBMODULE` - An absolute path to the real PKCS#11 module to load.
