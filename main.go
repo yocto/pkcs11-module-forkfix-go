@@ -204,7 +204,7 @@ var libraryPID int = -1
 
 func getDynamicLibrary() unsafe.Pointer {
 	if libraryHandle == nil || libraryPID == -1 || libraryPID != os.Getpid() {
-		fmt.Println("Fork detected. Reloading submodule.")
+		fmt.Printf("Fork detected. Having process id %d now. Reloading submodule.\n", os.Getpid())
 		if libraryHandle != nil {
 			C.dlerror()
 			C.dlclose(libraryHandle)
