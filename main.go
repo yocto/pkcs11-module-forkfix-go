@@ -204,10 +204,21 @@ var libraryPID int = -1
 
 func getDynamicLibrary() unsafe.Pointer {
 	if libraryHandle == nil || libraryPID == -1 || libraryPID != os.Getpid() {
+		fmt.Println("Fork detected. Reloading submodule.")
 		if libraryHandle != nil {
+			C.dlerror()
 			C.dlclose(libraryHandle)
+			dlerr := C.dlerror()
+			if dlerr != nil {
+				fmt.Printf("Error when closing dynamic library.\n", dlerr)
+			}
 		}
-		libraryHandle = C.dlmopen(C.LM_ID_NEWLM, C.CString(os.Getenv("PKCS11_SUBMODULE")), C.RTLD_LAZY)
+		C.dlerror()
+		libraryHandle = C.dlmopen(C.LM_ID_NEWLM, C.CString(os.Getenv("PKCS11_SUBMODULE")), C.RTLD_NOW|C.RTLD_LOCAL|C.RTLD_DEEPBIND)
+		dlerr := C.dlerror()
+		if dlerr != nil {
+			fmt.Printf("Error when opening dynamic library.\n", dlerr)
+		}
 		if libraryHandle == nil {
 			return nil
 		}
@@ -221,7 +232,12 @@ func getDynamicLibrarySymbol(functionName string) uintptr {
 	if lh == nil {
 		return 0
 	}
-	return uintptr(C.dlsym(lh, C.CString(functionName)))
+	C.dlerror()
+	symbol := C.dlsym(lh, C.CString(functionName))
+	if dlerr != nil {
+		fmt.Printf("Error when getting symbol from dynamic library.\n", dlerr)
+	}
+	return uintptr(symbol)
 }
 
 //export C_CancelFunction
