@@ -209,13 +209,13 @@ func getDynamicLibrary() unsafe.Pointer {
 			C.dlerror()
 			C.dlclose(libraryHandle)
 			if err := C.dlerror(); err != nil {
-				fmt.Printf("Error when closing dynamic library.\n", C.GoString(err))
+				fmt.Printf("Error when closing dynamic library: %s\n", C.GoString(err))
 			}
 		}
 		C.dlerror()
 		libraryHandle = C.dlmopen(C.LM_ID_NEWLM, C.CString(os.Getenv("PKCS11_SUBMODULE")), C.RTLD_NOW|C.RTLD_LOCAL|C.RTLD_DEEPBIND)
 		if err := C.dlerror(); err != nil {
-			fmt.Printf("Error when opening dynamic library.\n", C.GoString(err))
+			fmt.Printf("Error when opening dynamic library: %s\n", C.GoString(err))
 		}
 		if libraryHandle == nil {
 			return nil
@@ -233,7 +233,7 @@ func getDynamicLibrarySymbol(functionName string) uintptr {
 	C.dlerror()
 	symbol := C.dlsym(lh, C.CString(functionName))
 	if err := C.dlerror(); err != nil {
-		fmt.Printf("Error when getting symbol from dynamic library.\n", C.GoString(err))
+		fmt.Printf("Error when getting symbol from dynamic library: %s\n", C.GoString(err))
 	}
 	return uintptr(symbol)
 }
